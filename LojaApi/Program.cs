@@ -1,3 +1,5 @@
+using LojaApi.Data;
+using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,6 +9,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+builder.Services.AddDbContext<LojaDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("LojaDb")));
 
 // builder.Services.AddDbContext<LojaDbContext>(options =>
 //     options.UseNpgsql(builder.Configuration.GetConnectionString("LojaDb")));
@@ -26,4 +31,5 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run();
+await CargaInicial.ExecutarAsync(app);
+await app.RunAsync();

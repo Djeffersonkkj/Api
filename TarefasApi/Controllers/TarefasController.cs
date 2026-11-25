@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using TarefasApi.Data;
 using TarefasApi.Models;
 using TarefasApi.Models.Dtos.TarefaDtos;
 
@@ -12,19 +15,20 @@ namespace TarefasApi.Controllers;
 [Route("api/[controller]")]
 public class TarefasController : ControllerBase
 {
-    private static List<Tarefa> _tarefas = [
-        new Tarefa(1, "Chupar dedo do pé", false),
-        new Tarefa(2, "Escovar o umbigo", false),
-        new Tarefa(3, "Ler manifesto comunista", true),
-        new Tarefa(4, "Tomar café", false)
-    ];
+    public TarefasController(TarefaDbContext dbContext)
+    {
+        _dbContext = dbContext;
+    }
+
+    private readonly TarefaDbContext _dbContext;
 
     [HttpGet]
-    public IActionResult ObterTodasTarefas(
+    public async Task<IActionResult> ObterTodasTarefasAsync(
+        CancellationToken cancellationToken,
         [FromQuery] bool? concluida,
         [FromQuery] string busca)
     {
-        var tarefas = _tarefas.ToList();
+        var tarefas = await _dbContext.Tarefa.ToListAsync(cancellationToken);
 
         if (concluida is not null)
             tarefas = tarefas.Where(t => t.Concluida == concluida).ToList();
@@ -37,9 +41,9 @@ public class TarefasController : ControllerBase
             
 
     [HttpGet("{id}")]
-    public IActionResult ObterPorId(int id)
+    public async Task<IActionResult> ObterPorIdAsync(int id)
     {
-        var tarefa = _tarefas.FirstOrDefault(t => t.Id == id);
+        var tarefa = await _dbContext.Tarefa.FirstOrDefaultAsync(t => t.Id == id);
 
         if(tarefa is null)
             return NotFound();
@@ -48,45 +52,47 @@ public class TarefasController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult Criar(CriarTarefaDto dto)
+    public async Task<IActionResult> CriarAsync(CriarTarefaDto dto)
     {
-        int proximoId = Math.Max(_tarefas.Max(t => t.Id) + 1, 1);
-
-        _tarefas.Add(new Tarefa(proximoId, dto.Titulo, dto.Concluida, dto.Descricao));
+        _dbContext.Add(new Tarefa(dto.Titulo, dto.Concluida, dto.Descricao));
+        await _dbContext.SaveChangesAsync();
 
         return Created();
     }
 
     [HttpPut("{id}")]
-    public IActionResult Atualizar(int id, AtualizarTarefaDto dto)
+    public async Task<IActionResult> AtualizarAsync(int id, AtualizarTarefaDto dto)
     {
-        var tarefa = _tarefas.FirstOrDefault(t => t.Id == id);
+        var tarefa = await _dbContext.Tarefa.FirstOrDefaultAsync(t => t.Id == id);
 
         if(tarefa is null)
             return NotFound();
 
         tarefa.Atualizar(dto.Titulo, dto.Descricao, dto.Concluida);
 
+        await _dbContext.SaveChangesAsync();
+
         return NoContent();
     }
 
     [HttpDelete("{id}")]
-    public IActionResult Deletar(int id)
+    public async Task<IActionResult> DeletarAsync(int id)
     {
-        var tarefa = _tarefas.FirstOrDefault(t => t.Id == id);
+        var tarefa = await _dbContext.Tarefa.FirstOrDefaultAsync(t => t.Id == id);
 
         if(tarefa is null)
             return NotFound();
 
-        _tarefas.Remove(tarefa);
+        _dbContext.Tarefa.Remove(tarefa);
+        await _dbContext.SaveChangesAsync();
 
         return NoContent();
     }
 
     [HttpPatch("{id}/concluir")]
-    public IActionResult Concluir(int id)
+    public async Task<IActionResult> ConcluirAsync(int id)
     {
-        var tarefa = _tarefas.FirstOrDefault(t => t.Id == id);
+        var tarefa = await _dbContext.Tarefa.FirstOrDefaultAsync(t => t.Id == id);
 
         if(tarefa is null)
             return NotFound();
@@ -95,6 +101,7 @@ public class TarefasController : ControllerBase
             return BadRequest("Esta tarefa já está concluída");
 
         tarefa.Concluir();
+        await _dbContext.SaveChangesAsync();
 
         return NoContent();
     }

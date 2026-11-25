@@ -1,7 +1,10 @@
 using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Scalar.AspNetCore;
+using TarefasApi.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +13,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+var connectionString = builder.Configuration.GetConnectionString("TarefasDb");
+
+builder.Services.AddDbContext<TarefaDbContext>(options =>
+    options.UseNpgsql(connectionString));
 
 var app = builder.Build();
 

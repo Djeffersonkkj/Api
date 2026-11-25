@@ -8,21 +8,20 @@ namespace TarefasApi.Models;
 
 public class Tarefa
 {
-    public Tarefa(int id, string titulo, bool concluida, string descricao = null)
+    public Tarefa(string titulo, bool concluida, string descricao = null)
     {
-        Id = id;
         Titulo = titulo;
         Concluida = concluida;
         Descricao = descricao;
-        DataCriacao = DateTime.Now;
+        DataCriacao = DateTimeOffset.UtcNow;
     }
 
     public int Id { get; set; }
 
-    [Required] [StringLength(80, MinimumLength = 3)]
+    [Required] [StringLength(100, MinimumLength = 3)]
     public string Titulo { get; set; }
 
-    [StringLength(300)]
+    [StringLength(500)]
     public string Descricao { get; set; }
 
     public bool Concluida { get; set; }

@@ -12,10 +12,11 @@ public class Produto
 
     [Range(1, int.MaxValue, ErrorMessage = "Escolha uma categoria")]
     public int IdCategoria { get; set; }
+    public Categoria Categoria { get; set; }
 
     [Required(ErrorMessage = "O nome é obrigatório")]
     [StringLength(100, MinimumLength = 3, ErrorMessage = "O nome deve ter entre 3 e 100 caracteres.")]
-    public string Mome { get; set; }
+    public string Nome { get; set; }
 
     [Range(0.01, 99999999.99, ErrorMessage = "O preço deve ser maior que zero.")]
     public decimal Preco { get; set; }
