@@ -27,11 +27,10 @@ public class Tarefa
     public bool Concluida { get; set; }
     public DateTimeOffset DataCriacao { get; set; }
 
-    public void Atualizar(string titulo, string descricao, bool concluida)
+    public void Atualizar(string titulo, string descricao)
     {
         Titulo = titulo?? Titulo;
         Descricao = descricao?? Descricao;
-        Concluida = concluida;
     }
 
     public void Concluir()

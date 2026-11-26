@@ -68,7 +68,7 @@ public class TarefasController : ControllerBase
         if(tarefa is null)
             return NotFound();
 
-        tarefa.Atualizar(dto.Titulo, dto.Descricao, dto.Concluida);
+        tarefa.Atualizar(dto.Titulo, dto.Descricao);
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 
