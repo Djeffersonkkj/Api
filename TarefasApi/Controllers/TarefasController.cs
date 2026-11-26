@@ -28,22 +28,22 @@ public class TarefasController : ControllerBase
         [FromQuery] bool? concluida,
         [FromQuery] string busca)
     {
-        var tarefas = await _dbContext.Tarefa.ToListAsync(cancellationToken);
+        var query = _dbContext.Tarefa.AsQueryable();
 
         if (concluida is not null)
-            tarefas = tarefas.Where(t => t.Concluida == concluida).ToList();
+            query = query.Where(t => t.Concluida == concluida);
 
         if (busca is not null)
-            tarefas = tarefas.Where(t => t.Titulo.Contains(busca)).ToList();
+            query = query.Where(t => t.Titulo.Contains(busca));
 
-        return Ok(tarefas.ToList());
+        return Ok(query.ToListAsync(cancellationToken));
     } 
             
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> ObterPorIdAsync(int id)
+    public async Task<IActionResult> ObterPorIdAsync(CancellationToken cancellationToken, int id)
     {
-        var tarefa = await _dbContext.Tarefa.FirstOrDefaultAsync(t => t.Id == id);
+        var tarefa = await _dbContext.Tarefa.FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
 
         if(tarefa is null)
             return NotFound();
@@ -52,47 +52,47 @@ public class TarefasController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CriarAsync(CriarTarefaDto dto)
+    public async Task<IActionResult> CriarAsync(CancellationToken cancellationToken, CriarTarefaDto dto)
     {
         _dbContext.Add(new Tarefa(dto.Titulo, dto.Concluida, dto.Descricao));
-        await _dbContext.SaveChangesAsync();
+        await _dbContext.SaveChangesAsync(cancellationToken);
 
         return Created();
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> AtualizarAsync(int id, AtualizarTarefaDto dto)
+    public async Task<IActionResult> AtualizarAsync(CancellationToken cancellationToken, int id, AtualizarTarefaDto dto)
     {
-        var tarefa = await _dbContext.Tarefa.FirstOrDefaultAsync(t => t.Id == id);
+        var tarefa = await _dbContext.Tarefa.FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
 
         if(tarefa is null)
             return NotFound();
 
         tarefa.Atualizar(dto.Titulo, dto.Descricao, dto.Concluida);
 
-        await _dbContext.SaveChangesAsync();
+        await _dbContext.SaveChangesAsync(cancellationToken);
 
         return NoContent();
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeletarAsync(int id)
+    public async Task<IActionResult> DeletarAsync(CancellationToken cancellatiomToken, int id)
     {
-        var tarefa = await _dbContext.Tarefa.FirstOrDefaultAsync(t => t.Id == id);
+        var tarefa = await _dbContext.Tarefa.FirstOrDefaultAsync(t => t.Id == id, cancellatiomToken);
 
         if(tarefa is null)
             return NotFound();
 
         _dbContext.Tarefa.Remove(tarefa);
-        await _dbContext.SaveChangesAsync();
+        await _dbContext.SaveChangesAsync(cancellatiomToken);
 
         return NoContent();
     }
 
     [HttpPatch("{id}/concluir")]
-    public async Task<IActionResult> ConcluirAsync(int id)
+    public async Task<IActionResult> ConcluirAsync(CancellationToken cancellationToken, int id)
     {
-        var tarefa = await _dbContext.Tarefa.FirstOrDefaultAsync(t => t.Id == id);
+        var tarefa = await _dbContext.Tarefa.FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
 
         if(tarefa is null)
             return NotFound();
@@ -101,7 +101,7 @@ public class TarefasController : ControllerBase
             return BadRequest("Esta tarefa já está concluída");
 
         tarefa.Concluir();
-        await _dbContext.SaveChangesAsync();
+        await _dbContext.SaveChangesAsync(cancellationToken);
 
         return NoContent();
     }

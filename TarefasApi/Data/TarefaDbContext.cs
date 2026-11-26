@@ -28,7 +28,7 @@ public class TarefaDbContext : DbContext
             entity.Property(e => e.Titulo)
                 .IsRequired()
                 .HasMaxLength(100);
-
+                
             entity.Property(e => e.Descricao)
                 .HasMaxLength(500);
         });
