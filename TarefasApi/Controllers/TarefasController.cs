@@ -34,9 +34,11 @@ public class TarefasController : ControllerBase
             query = query.Where(t => t.Concluida == concluida);
 
         if (busca is not null)
-            query = query.Where(t => t.Titulo.Contains(busca));
+            query = query.Where(t => t.Titulo.Contains(busca.Trim(), StringComparison.OrdinalIgnoreCase));
 
-        return Ok(query.ToListAsync(cancellationToken));
+        var tarefa = await query.ToListAsync(cancellationToken);
+
+        return Ok(tarefa);
     } 
             
 

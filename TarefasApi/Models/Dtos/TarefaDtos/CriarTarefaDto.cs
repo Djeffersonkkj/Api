@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TarefasApi.Models.Dtos.TarefaDtos;
 
-public class CriarTarefaDto
+public sealed record class CriarTarefaDto
 {
     [Required] [StringLength(80, MinimumLength = 3)]
     public string Titulo { get; set; }

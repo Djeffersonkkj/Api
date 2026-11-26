@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TarefasApi.Models.Dtos.TarefaDtos;
 
-public class AtualizarTarefaDto
+public sealed record class AtualizarTarefaDto
 {
     public string Titulo { get; set; }
 
